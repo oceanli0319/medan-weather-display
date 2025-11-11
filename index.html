@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medan Weather Display</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #b80000, #ff3b3b);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      padding: 20px;
+    }
+
+    .time {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .city {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .temp {
+      font-size: 4em;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .condition {
+      font-size: 1.5em;
+      margin-bottom: 15px;
+    }
+
+    .details {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    .forecast {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .day {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+      min-width: 150px;
+    }
+
+    .day img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 1em;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="time" id="time"></div>
+    <div class="city">Medan, Indonesia</div>
+    <div class="temp" id="temp">--°C</div>
+    <div class="condition" id="condition">Loading...</div>
+    <div class="details" id="details"></div>
+    <div class="forecast" id="forecast"></div>
+  </div>
+  <div class="footer">Auto-updated every hour</div>
+
+  <script>
+    const apiKey = "c55f6f71630b437f87340732251111"; // Replace with your WeatherAPI key
+    const city = "Medan";
+
+    async function fetchWeather() {
+      const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=3&aqi=no&alerts=no`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      document.getElementById("temp").innerHTML = `${data.current.temp_c}°C`;
+      document.getElementById("condition").innerHTML = data.current.condition.text;
+      document.getElementById("details").innerHTML = 
+        `Humidity: ${data.current.humidity}% | Wind: ${data.current.wind_kph} km/h`;
+
+      const forecastHTML = data.forecast.forecastday.map(day => `
+        <div class="day">
+          <div>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+          <img src="https:${day.day.condition.icon}" alt="">
+          <div>${day.day.avgtemp_c}°C</div>
+          <div>${day.day.condition.text}</div>
+        </div>
+      `).join('');
+      document.getElementById("forecast").innerHTML = forecastHTML;
+    }
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("time").innerText = now.toLocaleString('en-US', {
+        weekday: 'long',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+
+    fetchWeather();
+    updateTime();
+    setInterval(updateTime, 60000);
+    setInterval(fetchWeather, 3600000);
+  </script>
+</body>
+</html>
