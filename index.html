@@ -1,131 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Medan Weather Display</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, #b80000, #ff3b3b);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medan Weather Display</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(145deg, #ff6f61, #d32f2f, #b71c1c);
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-    .container {
-      max-width: 900px;
-      padding: 20px;
-    }
+  .weather-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 0;
+    padding: 30px 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
-    .time {
-      font-size: 1.5em;
-      margin-bottom: 10px;
-    }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
 
-    .city {
-      font-size: 2.5em;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+  .city {
+    font-size: 3em;
+    font-weight: 800;
+  }
 
-    .temp {
-      font-size: 4em;
-      font-weight: bold;
-      margin: 10px 0;
-    }
+  .temp {
+    font-size: 7em;
+    font-weight: 900;
+  }
 
-    .condition {
-      font-size: 1.5em;
-      margin-bottom: 15px;
-    }
+  .condition {
+    font-size: 2.4em;
+    font-weight: 600;
+    text-align: center;
+    margin-top: -20px;
+  }
 
-    .details {
-      font-size: 1.2em;
-      margin-bottom: 20px;
-    }
+  .details {
+    text-align: center;
+    font-size: 1.6em;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-bottom: 10px;
+  }
 
-    .forecast {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
+  .forecast {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    flex-wrap: nowrap;
+    gap: 15px;
+  }
 
-    .day {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 15px;
-      border-radius: 10px;
-      min-width: 150px;
-    }
+  .day {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 10px;
+    width: 17%;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
 
-    .day img {
-      width: 50px;
-      height: 50px;
-    }
+  .day div {
+    margin: 6px 0;
+  }
 
-    .footer {
-      position: absolute;
-      bottom: 10px;
-      font-size: 1em;
-      opacity: 0.8;
-    }
-  </style>
+  .day img {
+    width: 75px;
+    height: 75px;
+  }
+
+  .day .temp-val {
+    font-size: 1.8em;
+    font-weight: 700;
+  }
+
+  .day .desc {
+    font-size: 1.2em;
+    font-weight: 500;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: 600;
+    opacity: 0.8;
+    margin-top: 5px;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="time" id="time"></div>
-    <div class="city">Medan, Indonesia</div>
-    <div class="temp" id="temp">--°C</div>
-    <div class="condition" id="condition">Loading...</div>
-    <div class="details" id="details"></div>
+  <div class="weather-card">
+    <div>
+      <div class="header">
+        <div class="city" id="city">Medan</div>
+        <div class="temp" id="temp">--°C</div>
+      </div>
+      <div class="condition" id="condition">Loading...</div>
+      <div class="details" id="details"></div>
+    </div>
+
     <div class="forecast" id="forecast"></div>
+    <div class="footer" id="time"></div>
   </div>
-  <div class="footer">Auto-updated every hour</div>
 
-  <script>
-    const apiKey = "c55f6f71630b437f87340732251111"; // Replace with your WeatherAPI key
-    const city = "Medan";
+<script>
+  const apiKey = "c55f6f71630b437f87340732251111"; // Replace with your WeatherAPI key
+  const city = "Medan";
 
-    async function fetchWeather() {
-      const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=3&aqi=no&alerts=no`;
+  async function fetchWeather() {
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=5&aqi=no&alerts=no`;
+    try {
       const res = await fetch(url);
       const data = await res.json();
-
-      document.getElementById("temp").innerHTML = `${data.current.temp_c}°C`;
-      document.getElementById("condition").innerHTML = data.current.condition.text;
-      document.getElementById("details").innerHTML = 
-        `Humidity: ${data.current.humidity}% | Wind: ${data.current.wind_kph} km/h`;
+      document.getElementById("city").innerText = data.location.name;
+      document.getElementById("temp").innerText = `${data.current.temp_c.toFixed(1)}°C`;
+      document.getElementById("condition").innerText = data.current.condition.text;
+      document.getElementById("details").innerText =
+        `Humidity: ${data.current.humidity}% | Wind: ${data.current.wind_kph} km/h | Max: ${data.forecast.forecastday[0].day.maxtemp_c}°C / Min: ${data.forecast.forecastday[0].day.mintemp_c}°C`;
 
       const forecastHTML = data.forecast.forecastday.map(day => `
         <div class="day">
-          <div>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+          <div class="date">${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
           <img src="https:${day.day.condition.icon}" alt="">
-          <div>${day.day.avgtemp_c}°C</div>
-          <div>${day.day.condition.text}</div>
+          <div class="temp-val">${day.day.avgtemp_c.toFixed(1)}°C</div>
+          <div class="desc">${day.day.condition.text}</div>
         </div>
       `).join('');
       document.getElementById("forecast").innerHTML = forecastHTML;
+    } catch (e) {
+      document.getElementById("condition").innerText = "Failed to load data.";
+      console.error(e);
     }
+  }
 
-    function updateTime() {
-      const now = new Date();
-      document.getElementById("time").innerText = now.toLocaleString('en-US', {
-        weekday: 'long',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-    }
+  function updateTime() {
+    const now = new Date();
+    document.getElementById("time").innerText =
+      now.toLocaleString('en-US', { weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: false });
+  }
 
-    fetchWeather();
-    updateTime();
-    setInterval(updateTime, 60000);
-    setInterval(fetchWeather, 3600000);
-  </script>
+  fetchWeather();
+  updateTime();
+  setInterval(updateTime, 60000);
+  setInterval(fetchWeather, 3600000);
+</script>
 </body>
 </html>
